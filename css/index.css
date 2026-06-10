@@ -1,0 +1,373 @@
+    :root {
+      --navy:  #2b5f8e;
+      --sky:   #85c8ee;
+      --green: #5ab52a;
+      --mint:  #ceecd8;
+      --white: #ffffff;
+      --bg:    #f0f7f4;
+      --text:  #1a2e1e;
+      --muted: #6b8f7a;
+      --border:#d0e8da;
+      --danger:#e05252;
+      --warn:  #e8a930;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(133,200,238,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 90%, rgba(90,181,42,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 10%, rgba(43,95,142,0.10) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating ECG line decoration */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: -10%;
+      width: 120%;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(133,200,238,0.3) 20%,
+        rgba(90,181,42,0.4) 50%,
+        rgba(133,200,238,0.3) 80%,
+        transparent 100%
+      );
+      transform: translateY(-50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: scanLine 6s ease-in-out infinite;
+    }
+
+    @keyframes scanLine {
+      0%, 100% { opacity: 0.3; transform: translateY(-50%) scaleX(0.8); }
+      50%       { opacity: 0.7; transform: translateY(-50%) scaleX(1); }
+    }
+
+    /* Card container */
+    .login-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    /* Brand */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      justify-content: center;
+    }
+
+    .brand-icon {
+      width: 44px; height: 44px;
+      background: var(--navy);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(43,95,142,0.3);
+    }
+
+    .brand-icon svg { color: var(--sky); width: 24px; height: 24px; }
+
+    .brand-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-name span { color: var(--green); }
+
+    /* Card */
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow:
+        0 4px 6px rgba(43,95,142,0.04),
+        0 20px 60px rgba(43,95,142,0.10);
+      overflow: hidden;
+    }
+
+    /* Views */
+    .view { display: none; padding: 36px 32px; }
+    .view.active { display: block; animation: fadeUp 0.3s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* View headers */
+    .view-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .view-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Form fields */
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .field-input-wrap {
+      position: relative;
+    }
+
+    .field-input-wrap > svg:first-child {
+      position: absolute;
+      left: 13px; top: 50%; transform: translateY(-50%);
+      color: var(--muted);
+      width: 15px; height: 15px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    /* Input có nút toggle mật khẩu → thêm padding phải để không bị đè */
+    .field-input-wrap .pass-toggle ~ input,
+    .field-input-wrap input:has(~ .pass-toggle),
+    .has-toggle input {
+      padding-right: 44px;
+    }
+
+    .field input:focus {
+      border-color: var(--navy);
+      background: var(--white);
+    }
+
+    .field input::placeholder { color: var(--muted); opacity: 0.7; }
+
+    .field input.error { border-color: var(--danger); }
+
+    /* Password toggle */
+    .pass-toggle {
+      position: absolute;
+      right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 6px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px;
+      z-index: 2;
+      transition: color 0.15s, background 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pass-toggle:hover { color: var(--navy); background: rgba(43,95,142,0.08); }
+    .pass-toggle svg { width: 16px; height: 16px; pointer-events: none; }
+
+    /* Strength bar */
+    .pw-strength {
+      margin-top: 6px;
+      display: none;
+    }
+
+    .pw-strength.show { display: block; }
+
+    .pw-strength-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+      width: 0%;
+    }
+
+    .pw-strength-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    /* Forgot link */
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--navy);
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: -8px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 14px rgba(43,95,142,0.25);
+      letter-spacing: 0.02em;
+    }
+
+    .btn-submit:hover  { background: #1e4a72; box-shadow: 0 6px 20px rgba(43,95,142,0.35); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .btn-submit svg { width: 16px; height: 16px; }
+
+    /* Spinner inside button */
+    .btn-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error / info banners */
+    .banner {
+      border-radius: 9px;
+      padding: 11px 14px;
+      font-size: 0.8rem;
+      margin-bottom: 18px;
+      display: none;
+      align-items: flex-start;
+      gap: 9px;
+      line-height: 1.5;
+    }
+    .banner.show { display: flex; }
+    .banner.error { background: #fdeaea; color: #c0392b; }
+    .banner.info  { background: #e8f2fc; color: var(--navy); }
+    .banner.warn  { background: #fff4e0; color: #8a5800; }
+    .banner svg   { flex-shrink: 0; width: 16px; height: 16px; margin-top: 1px; }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: color 0.12s;
+    }
+    .back-link:hover { color: var(--navy); }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* Role badge for "coming soon" */
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 14px;
+      font-size: 0.8rem; font-weight: 600; color: var(--muted);
+      margin-bottom: 8px; width: 100%;
+    }
+
+    /* Footer note */
+    .login-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* Coming soon overlay */
+    .coming-soon-box {
+      text-align: center;
+      padding: 8px 0 4px;
+    }
+
+    .coming-soon-box .cs-icon {
+      font-size: 2.8rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .coming-soon-box .cs-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .coming-soon-box .cs-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .cs-role-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #e8f2fc; color: var(--navy);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.72rem; font-weight: 700;
+      margin-bottom: 20px;
+    }

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng nhập — Health Monitor</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/index.css"/>
+</head>
+<body>
+
+<div class="login-wrap">
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    </div>
+    <div class="brand-name">Health<span>Monitor</span></div>
+  </div>
+
+  <div class="card">
+
+    <!-- VIEW 1: ĐĂNG NHẬP -->
+    <div class="view active" id="view-login">
+      <div class="view-title">Chào mừng trở lại</div>
+      <div class="view-sub">Đăng nhập để tiếp tục theo dõi bệnh nhân</div>
+
+      <div class="banner error" id="login-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="login-error-msg"></span>
+      </div>
+
+      <div class="field">
+        <label>Vai trò</label>
+        <div class="field-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <select id="role-select" onchange="onRoleChange(this.value)" style="width:100%;padding:11px 14px 11px 40px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:0.85rem;color:var(--text);background:var(--bg);outline:none;appearance:none;cursor:pointer;transition:border-color 0.15s">
+            <option value="">-- Chọn vai trò --</option>
+            <option value="user_bs">👨‍⚕️ Bác sĩ</option>
+            <option value="sub_admin">🔧 Quản trị viên cơ sở</option>
+            <option value="admin">⚙️ Admin hệ thống</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" id="field-hospital">
+        <label>Cơ sở y tế</label>
+        <div class="field-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <select id="hospital-select" onchange="clearLoginError()" style="width:100%;padding:11px 14px 11px 40px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:0.85rem;color:var(--text);background:var(--bg);outline:none;appearance:none;cursor:pointer;transition:border-color 0.15s">
+            <option value="">-- Chọn cơ sở y tế --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Email hoặc số điện thoại</label>
+        <div class="field-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="login-input" placeholder="email@tamanhhospital.vn hoặc 090..."
+            autocomplete="username" oninput="clearLoginError()"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Mật khẩu</label>
+        <div class="field-input-wrap has-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="login-pass" placeholder="Nhập mật khẩu"
+            autocomplete="current-password" oninput="clearLoginError()" onkeydown="if(event.key==='Enter')doLogin()"
+            style="padding-right:44px"/>
+          <button class="pass-toggle" type="button" onclick="togglePass('login-pass',this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <span class="forgot-link" onclick="showView('view-forgot')">Quên mật khẩu?</span>
+
+      <button class="btn-submit" id="login-btn" onclick="doLogin()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Đăng nhập
+      </button>
+
+      <div class="login-footer">Chỉ dành cho nhân viên y tế được cấp quyền</div>
+    </div>
+
+    <!-- VIEW 2: ĐỔI MẬT KHẨU LẦN ĐẦU -->
+    <div class="view" id="view-change-pass">
+      <div class="banner warn show">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Đây là lần đăng nhập đầu tiên. Vui lòng đặt mật khẩu cá nhân mới để tiếp tục.</span>
+      </div>
+
+      <div class="view-title">Đặt mật khẩu mới</div>
+      <div class="view-sub" id="change-pass-sub">Mật khẩu mới phải có ít nhất 6 ký tự</div>
+
+      <div class="banner error" id="cp-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="cp-error-msg"></span>
+      </div>
+
+      <div class="field">
+        <label>Mật khẩu mới</label>
+        <div class="field-input-wrap has-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="new-pass" placeholder="Tối thiểu 6 ký tự"
+            oninput="checkStrength(this.value)" autocomplete="new-password"
+            style="padding-right:44px"/>
+          <button class="pass-toggle" type="button" onclick="togglePass('new-pass',this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="pw-strength" id="pw-strength">
+          <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+          <div class="pw-strength-label" id="pw-label"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Xác nhận mật khẩu</label>
+        <div class="field-input-wrap has-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="confirm-pass" placeholder="Nhập lại mật khẩu mới"
+            autocomplete="new-password" onkeydown="if(event.key==='Enter')doChangePass()"
+            style="padding-right:44px"/>
+          <button class="pass-toggle" type="button" onclick="togglePass('confirm-pass',this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="cp-btn" onclick="doChangePass()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Xác nhận & Đăng nhập
+      </button>
+    </div>
+
+    <!-- VIEW 3: QUÊN MẬT KHẨU -->
+    <div class="view" id="view-forgot">
+      <span class="back-link" onclick="showView('view-login')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Quay lại đăng nhập
+      </span>
+
+      <div class="view-title">Quên mật khẩu</div>
+      <div class="view-sub">Nhập email tài khoản — chúng tôi sẽ gửi link đặt lại mật khẩu trong vòng 1 giờ.</div>
+
+      <div class="banner error" id="forgot-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="forgot-error-msg"></span>
+      </div>
+
+      <div class="banner info" id="forgot-success" style="background:#e8f8ec;color:#2d8a3e">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span id="forgot-success-msg"></span>
+      </div>
+
+      <div class="field" id="forgot-email-field">
+        <label>Email tài khoản</label>
+        <div class="field-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" id="forgot-email" placeholder="email@tamanhhospital.vn"
+            autocomplete="email" onkeydown="if(event.key==='Enter')doForgotPassword()"/>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="forgot-btn" onclick="doForgotPassword()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Gửi email đặt lại mật khẩu
+      </button>
+    </div>
+
+    <!-- VIEW 4: ĐANG PHÁT TRIỂN -->
+    <div class="view" id="view-coming-soon">
+      <div class="coming-soon-box">
+        <span class="cs-icon">🚧</span>
+        <div class="cs-title">Đang phát triển</div>
+        <div class="cs-sub">
+          Trang quản trị dành cho <strong id="cs-role-name">Admin / Sub Admin</strong><br>
+          đang được xây dựng và sẽ ra mắt trong thời gian tới.
+        </div>
+        <div class="cs-role-chip">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span id="cs-role-chip-text">Đã đăng nhập</span>
+        </div>
+        <button class="btn-submit" onclick="showView('view-login')" style="max-width:220px;margin:0 auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Đăng xuất
+        </button>
+      </div>
+    </div>
+
+  </div><!-- .card -->
+</div><!-- .login-wrap -->
+
+<script src="js/index.js"></script>
+</body>
+</html>

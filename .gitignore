@@ -1,0 +1,12 @@
+node_modules/
+package-lock.json
+
+# Environment variables — KHÔNG được commit file này
+.env
+.env.local
+
+*.log
+npm-debug.log*
+
+.DS_Store
+Thumbs.db
