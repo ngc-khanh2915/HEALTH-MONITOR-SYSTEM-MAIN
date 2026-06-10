@@ -29,6 +29,7 @@ const corsOptions = {
   origin: function(origin, callback) {
     const allowed = [
       "https://accountdoan.github.io",
+      "https://ngc-khanh2915.github.io",
       "http://localhost:3000",
       "http://localhost:5500",
       "http://127.0.0.1:5500",
