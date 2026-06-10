@@ -8,6 +8,12 @@ const API = 'https://health-monitor-doctor.onrender.com';
 const SESS = JSON.parse(localStorage.getItem('hm_session')||'{}');
 const DID = SESS.userId;
 
+function authHeader(extra){
+  const h = { 'Content-Type': 'application/json', ...extra };
+  if(SESS.token) h['Authorization'] = `Bearer ${SESS.token}`;
+  return h;
+}
+
 // Kiểm tra session hết hạn
 (function checkSessionExpiry(){
   if(!SESS.userId){ window.location.replace('index.html'); return; }
@@ -114,7 +120,7 @@ let alertCache = [];
 
 async function loadActiveAlerts(){
   try {
-    const r = await fetch(`${API}/doctor/${DID}/active-alerts`);
+    const r = await fetch(`${API}/doctor/${DID}/active-alerts`, { headers: authHeader() });
     if(!r.ok){
       const err = await r.json().catch(()=>({}));
       console.warn('[active-alerts] Server error:', err);
@@ -301,7 +307,7 @@ async function renderDevicesPage(){
   const body = document.getElementById('devices-body');
   body.innerHTML = '<div class="loading"><span class="spin"></span>Đang tải...</div>';
   try {
-    const r = await fetch(`${API}/doctor/${DID}/patients`);
+    const r = await fetch(`${API}/doctor/${DID}/patients`, { headers: authHeader() });
     const list = r.ok ? await r.json() : [];
     if(!list.length){ body.innerHTML='<div class="loading">Không có dữ liệu</div>'; return; }
     body.innerHTML = `<div class="page-grid" style="padding:18px">${list.map(p=>{
@@ -345,7 +351,7 @@ async function renderLinksPage(){
   const body = document.getElementById('links-body');
   body.innerHTML = '<div class="loading"><span class="spin"></span>Đang tải...</div>';
   try {
-    const r = await fetch(API + '/doctor/' + DID + '/families');
+    const r = await fetch(API + '/doctor/' + DID + '/families', { headers: authHeader() });
     linksData = r.ok ? await r.json() : {};
     const entries = Object.values(linksData);
     if(!entries.length){ body.innerHTML='<div class="loading">Chưa có liên kết nào</div>'; return; }
@@ -414,7 +420,7 @@ async function renderRecordsPage(){
   body.innerHTML = '<div class="loading"><span class="spin"></span>Đang tải...</div>';
   document.getElementById('rec-srch').value = '';
   try {
-    const r = await fetch(`${API}/doctor/${DID}/patients`);
+    const r = await fetch(`${API}/doctor/${DID}/patients`, { headers: authHeader() });
     const list = r.ok ? await r.json() : [];
     if(!list.length){ body.innerHTML='<div class="loading">Không có bệnh nhân</div>'; return; }
     recPts = list;
@@ -449,8 +455,8 @@ async function loadAccRecord(pid){
   try {
     // Fetch hồ sơ và ngưỡng cảnh báo song song
     const [r, rt] = await Promise.all([
-      fetch(`${API}/medical-record/${pid}`),
-      fetch(`${API}/threshold/${pid}`)
+      fetch(`${API}/medical-record/${pid}`, { headers: authHeader() }),
+      fetch(`${API}/threshold/${pid}`, { headers: authHeader() })
     ]);
     const rec = r.ok ? await r.json() : null;
     const p = { threshold: rt.ok ? await rt.json() : null };
@@ -538,14 +544,14 @@ async function saveAccRec(pid){
   msg.style.color='var(--muted)'; msg.textContent='Đang lưu...';
   try {
     // Lưu hồ sơ bệnh nhân
-    const r = await fetch(`${API}/medical-record/${pid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const r = await fetch(`${API}/medical-record/${pid}`,{method:'PATCH',headers:authHeader(),body:JSON.stringify(payload)});
     const d = await r.json();
     if(!r.ok) throw new Error(d.error||'Lỗi lưu hồ sơ');
 
     // Lưu ngưỡng cảnh báo nếu có dữ liệu
     if(hasNcbData){
       const rn = await fetch(`${API}/threshold/${pid}`,{
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', headers:authHeader(),
         body: JSON.stringify({...ncbPayload, doctorId: DID})
       });
       const dn = await rn.json();
@@ -580,7 +586,7 @@ async function loadThresholdHistory(pid){
   wrap.style.display='block';
   body.innerHTML='<div class="loading"><span class="spin"></span>Đang tải...</div>';
   try {
-    const r = await fetch(`${API}/threshold/${pid}/history`);
+    const r = await fetch(`${API}/threshold/${pid}/history`, { headers: authHeader() });
     const list = r.ok ? await r.json() : [];
     if(!list.length){
       body.innerHTML='<div style="font-size:.74rem;color:var(--muted);font-style:italic;padding:8px 0">Chưa có lịch sử thay đổi</div>';
@@ -688,7 +694,7 @@ async function loadThresholdHistoryView(){
     let url = pid ? `${API}/threshold/${pid}/history` : `${API}/threshold/all/history?doctorId=${DID}`;
     if(from) url+=(url.includes('?')?'&':'?')+'from='+from;
     if(to)   url+=(url.includes('?')?'&':'?')+'to='+to;
-    const r=await fetch(url);
+    const r=await fetch(url, { headers: authHeader() });
     _thrList=r.ok?await r.json():[];
     _thrPage=1;
     renderThrTable();
@@ -707,7 +713,7 @@ function initThresholdHistoryView(){
         if(pid&&name){const opt=document.createElement('option');opt.value=pid;opt.textContent=name;sel.appendChild(opt);}
       });
     } else {
-      fetch(`${API}/doctor/${DID}/patients`).then(r=>r.json()).then(list=>{
+      fetch(`${API}/doctor/${DID}/patients`, { headers: authHeader() }).then(r=>r.json()).then(list=>{
         (list||[]).forEach(p=>{const opt=document.createElement('option');opt.value=p.patientId;opt.textContent=p.patientName||p.name||'—';sel.appendChild(opt);});
       }).catch(()=>{});
     }
@@ -785,7 +791,7 @@ async function openProfile(){
   document.getElementById('pf-msg').textContent='';
   _profileAvatarFile = null;
   try {
-    const r = await fetch(`${API}/doctor/${DID}/profile`);
+    const r = await fetch(`${API}/doctor/${DID}/profile`, { headers: authHeader() });
     const d = r.ok ? await r.json() : {};
     document.getElementById('pf-name').value  = d.name||sess.name||'';
     document.getElementById('pf-phone').value = d.phone||sess.phone||'';
@@ -818,7 +824,7 @@ async function saveProfile(){
     };
     if(avatarUrl) body.avatar = avatarUrl;
     const r = await fetch(`${API}/doctor/${DID}/profile`, {
-      method:'PATCH', headers:{'Content-Type':'application/json'},
+      method:'PATCH', headers:authHeader(),
       body: JSON.stringify(body)
     });
     const d = await r.json();
@@ -847,7 +853,7 @@ async function changePw(){
   m.style.color='var(--danger)';
   if(!o||!n||!c){m.textContent='Điền đủ thông tin';return;} if(n.length<6){m.textContent='Mật khẩu ≥ 6 ký tự';return;} if(n!==c){m.textContent='Không khớp';return;}
   m.style.color='var(--muted)'; m.textContent='Đang xử lý...';
-  try { const r=await fetch(`${API}/auth/change-password`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:DID,newPassword:n})}); const d=await r.json(); if(r.ok){m.style.color='var(--green)';m.textContent='✅ Thành công!';['pw-old','pw-new','pw-cf'].forEach(id=>document.getElementById(id).value='');}else{m.textContent=d.error||'Lỗi';} } catch(e){m.textContent='Không thể kết nối';}
+  try { const r=await fetch(`${API}/auth/change-password`,{method:'POST',headers:authHeader(),body:JSON.stringify({userId:DID,newPassword:n})}); const d=await r.json(); if(r.ok){m.style.color='var(--green)';m.textContent='✅ Thành công!';['pw-old','pw-new','pw-cf'].forEach(id=>document.getElementById(id).value='');}else{m.textContent=d.error||'Lỗi';} } catch(e){m.textContent='Không thể kết nối';}
 }
 (()=>{
   const t=localStorage.getItem('hm_theme');
@@ -1109,7 +1115,7 @@ async function preloadAllVitals(){
     await Promise.all(chunk.map(async function(p){
       if(vcache[p.id]) return;
       try {
-        const r = await fetch(API+'/vitals/'+p.id+'/days');
+        const r = await fetch(API+'/vitals/'+p.id+'/days', { headers: authHeader() });
         if(!r.ok) return;
         const dates = await r.json();
         vcache[p.id] = { byDate:{}, dates:dates };
@@ -1130,7 +1136,7 @@ async function fetchPatientDay(pid, date){
   if(!vcache[pid]) vcache[pid] = {byDate:{}, dates:[]};
   if(vcache[pid].byDate[date]) return vcache[pid].byDate[date]; // đã có cache
   try {
-    const r = await fetch(API+'/vitals/'+pid+'/by-date/'+date);
+    const r = await fetch(API+'/vitals/'+pid+'/by-date/'+date, { headers: authHeader() });
     if(!r.ok) return [];
     const rows = await r.json();
     vcache[pid].byDate[date] = rows;
@@ -1146,7 +1152,7 @@ async function fetchPatientDay(pid, date){
 async function loadData(){
   document.getElementById('pt-list').innerHTML='<div class="loading"><span class="spin"></span>Đang tải...</div>';
   try {
-    const r=await fetch(`${API}/doctor/${DID}/patients`);
+    const r=await fetch(`${API}/doctor/${DID}/patients`, { headers: authHeader() });
     if(!r.ok) throw new Error('HTTP '+r.status);
     const raw=await r.json();
     pts=raw.map(p=>({
@@ -1162,7 +1168,7 @@ async function loadData(){
     updSum();
     document.getElementById('last-upd').textContent=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     loadSbDoc();
-    try { const rd=await fetch(`${API}/vitals/days`); if(rd.ok){allDates=(await rd.json()).sort((a,b)=>b.localeCompare(a));buildDD();} } catch(_){}
+    try { const rd=await fetch(`${API}/vitals/days`, { headers: authHeader() }); if(rd.ok){allDates=(await rd.json()).sort((a,b)=>b.localeCompare(a));buildDD();} } catch(_){}
     // Khởi động Realtime sau khi có danh sách bệnh nhân
     startRealtime();
     preloadAllVitals();
@@ -1426,7 +1432,7 @@ async function showV(pid){
   body.innerHTML = '<div class="loading"><span class="spin"></span>Đang tải...</div>';
   try {
     // Luôn fetch lại dates để đảm bảo đủ (override cache cũ có thể thiếu)
-    const r = await fetch(API+'/vitals/'+pid+'/days');
+    const r = await fetch(API+'/vitals/'+pid+'/days', { headers: authHeader() });
     if(!r.ok) throw new Error('HTTP '+r.status);
     const dates = await r.json();
     if(!vcache[pid]) vcache[pid] = {byDate:{}, dates:[]};
@@ -1586,7 +1592,7 @@ document.getElementById('srch').addEventListener('input',function(){renderPts(pt
 // SIDEBAR DOCTOR
 async function loadSbDoc(){
   try {
-    const r = await fetch(`${API}/doctor/${DID}`);
+    const r = await fetch(`${API}/doctor/${DID}`, { headers: authHeader() });
     if(!r.ok) return;
     const d = await r.json();
     const i = (d.name||'BS').split(' ').map(w=>w[0]).slice(-2).join('').toUpperCase();
@@ -1608,7 +1614,7 @@ async function saveRec(pid){
   ['nhom_mau','benh_man_tinh','di_ung','tien_su_y_te','nguoi_lien_he_khan_ten','nguoi_lien_he_khan_sdt'].forEach(f=>{const v=g(f);if(v)p[f]=v;});
   ['chieu_cao_cm','can_nang_kg'].forEach(f=>{const v=g(f);if(v)p[f]=parseFloat(v);});
   m.style.color='var(--muted)';m.textContent='Đang lưu...';
-  try { const r=await fetch(`${API}/medical-record/${pid}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}); const d=await r.json(); if(r.ok){m.style.color='var(--green)';m.textContent='✅ Lưu thành công!';setTimeout(()=>m.textContent='',3000);}else{m.style.color='var(--danger)';m.textContent='⚠️ '+(d.error||'Lỗi');} } catch(e){m.style.color='var(--danger)';m.textContent='⚠️ Không thể kết nối';}
+  try { const r=await fetch(`${API}/medical-record/${pid}`,{method:'PATCH',headers:authHeader(),body:JSON.stringify(p)}); const d=await r.json(); if(r.ok){m.style.color='var(--green)';m.textContent='✅ Lưu thành công!';setTimeout(()=>m.textContent='',3000);}else{m.style.color='var(--danger)';m.textContent='⚠️ '+(d.error||'Lỗi');} } catch(e){m.style.color='var(--danger)';m.textContent='⚠️ Không thể kết nối';}
 }
 
 // CHAT
@@ -1630,7 +1636,7 @@ async function openChat(pid,name){
   document.getElementById('cv-chat').style.display='flex';
   const m=document.getElementById('cmsgs');
   m.innerHTML='<div style="text-align:center;padding:20px"><span class="spin"></span></div>';
-  try{const r=await fetch(`${API}/chat/${pid}`);ccache[pid]=r.ok?await r.json():[];}catch(_){ccache[pid]=[];}
+  try{const r=await fetch(`${API}/chat/${pid}`, { headers: authHeader() });ccache[pid]=r.ok?await r.json():[];}catch(_){ccache[pid]=[];}
   renderCMsgs();
 }
 function renderCMsgs(){
@@ -1646,7 +1652,7 @@ async function sendNote(){
   if(!txt||!curCPid)return;
   const type=document.getElementById('ctype').value;
   inp.value='';inp.style.height='auto';
-  try{const r=await fetch(`${API}/chat/${curCPid}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({doctorId:DID,content:txt,type})});if(r.ok){if(!ccache[curCPid])ccache[curCPid]=[];ccache[curCPid].push(await r.json());renderCMsgs();}}catch(_){}
+  try{const r=await fetch(`${API}/chat/${curCPid}`,{method:'POST',headers:authHeader(),body:JSON.stringify({doctorId:DID,content:txt,type})});if(r.ok){if(!ccache[curCPid])ccache[curCPid]=[];ccache[curCPid].push(await r.json());renderCMsgs();}}catch(_){}
 }
 document.getElementById('cinp').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendNote();}});
 document.getElementById('cinp').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,68)+'px';});
@@ -1659,7 +1665,7 @@ const REFRESH_INTERVAL = 60000; // 60 giây fallback
 async function silentRefresh(){
   // Luôn refresh danh sách + live data (không hiện spinner)
   try {
-    const r = await fetch(`${API}/doctor/${DID}/patients`);
+    const r = await fetch(`${API}/doctor/${DID}/patients`, { headers: authHeader() });
     if(!r.ok) return;
     const raw = await r.json();
     const newPts = raw.map(p=>({
@@ -1683,7 +1689,7 @@ async function silentRefresh(){
   if(selPid && document.getElementById('view-patient').style.display !== 'none'){
     try {
       // Chỉ fetch data mới nhất (limit nhỏ để nhanh), merge vào cache
-      const r = await fetch(`${API}/vitals/${selPid}?limit=50`);
+      const r = await fetch(`${API}/vitals/${selPid}?limit=50`, { headers: authHeader() });
       if(!r.ok) return;
       const raw = await r.json();
       if(!raw.length) return;

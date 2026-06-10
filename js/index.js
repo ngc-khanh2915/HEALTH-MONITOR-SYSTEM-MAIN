@@ -181,6 +181,7 @@ async function doLogin(){
 
     // Redirect theo vai trò
     redirectByRole(primaryRole, data.userId, data.name, {
+      token:        data.token        || null,
       hospitalId:   data.hospitalId,
       isFirstLogin: data.isFirstLogin || false,
     });
@@ -244,9 +245,10 @@ async function doChangePass(){
 
 // ── SESSION HELPERS ──
 function saveSession(userId, role, name, extra){
-  const SESSION_HOURS = 8; // Hết hạn sau 8 tiếng
+  const SESSION_HOURS = 8;
   localStorage.setItem('hm_session', JSON.stringify({
     userId, role, roles: [role], name,
+    token:        extra?.token        || null,
     hospitalId:   extra?.hospitalId   || null,
     isFirstLogin: extra?.isFirstLogin || false,
     loginAt:   Date.now(),
