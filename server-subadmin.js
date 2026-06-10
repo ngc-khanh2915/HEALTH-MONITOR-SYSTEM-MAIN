@@ -523,7 +523,7 @@ app.post("/admin/:userId/devices/:deviceId/provision", requireAuth, async (req, 
       nguoi_gan: userId, ngay_gan: new Date().toISOString(), trang_thai_hoat_dong: true,
     });
 
-    const DOCTOR_API = process.env.DOCTOR_API_URL || "https://health-monitor-system-twts.onrender.com";
+    const DOCTOR_API = process.env.DOCTOR_API_URL || "https://health-monitor-doctor.onrender.com";
     res.json({ ok: true, deviceSerial: dev.so_seri, patientId: patient.id, patientName: patient.ho_ten, apiEndpoint: DOCTOR_API, provisionedAt: new Date().toISOString() });
   } catch (err) {
     console.error("[POST /admin/devices/provision]", err.message);

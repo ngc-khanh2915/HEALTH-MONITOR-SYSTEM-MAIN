@@ -1,4 +1,4 @@
-const API = 'https://health-monitor-system-doctor.onrender.com';
+const API = 'https://health-monitor-doctor.onrender.com';
 
 // ── SESSION CHECK — chạy ngay trước khi render ──
 (function checkSession(){
@@ -140,8 +140,8 @@ async function doLogin(){
 
   try {
     // Mỗi role gọi đúng backend của mình
-    const ADMIN_API    = 'https://health-monitor-admin.onrender.com';
-    const SUBADMIN_API = 'https://health-monitor-subadmin.onrender.com';
+    const ADMIN_API    = 'https://health-monitor-admin-ldk0.onrender.com';
+    const SUBADMIN_API = 'https://health-monitor-subadmin-bhj5.onrender.com';
     const loginAPI = role === 'admin' ? ADMIN_API
                    : role === 'sub_admin' ? SUBADMIN_API
                    : API;
@@ -207,8 +207,8 @@ async function doChangePass(){
   btn.innerHTML = `<div class="btn-spinner"></div> Đang lưu...`;
 
   // Chọn đúng API theo role
-  const ADMIN_API    = 'https://health-monitor-admin.onrender.com';
-  const SUBADMIN_API = 'https://health-monitor-subadmin.onrender.com';
+  const ADMIN_API    = 'https://health-monitor-admin-ldk0.onrender.com';
+  const SUBADMIN_API = 'https://health-monitor-subadmin-bhj5.onrender.com';
   const changeAPI = pendingUserRole === 'admin'     ? ADMIN_API
                   : pendingUserRole === 'sub_admin' ? SUBADMIN_API
                   : API;
@@ -287,9 +287,9 @@ async function doForgotPassword(){
 
   // Thử cả 3 server — server nào tìm được email sẽ gửi
   const APIS = [
-    'https://health-monitor-system-doctor.onrender.com',
-    'https://health-monitor-subadmin.onrender.com',
-    'https://health-monitor-admin.onrender.com',
+    'https://health-monitor-doctor.onrender.com',
+    'https://health-monitor-subadmin-bhj5.onrender.com',
+    'https://health-monitor-admin-ldk0.onrender.com',
   ];
 
   try{

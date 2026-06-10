@@ -5,7 +5,7 @@ try {
   if(!s.userId || !_roles.includes('sub_admin')){ localStorage.removeItem('hm_session'); location.replace('index.html'); }
 } catch(_){ location.replace('index.html'); }
 
-const AAPI = 'https://health-monitor-subadmin.onrender.com';
+const AAPI = 'https://health-monitor-subadmin-bhj5.onrender.com';
 const SESS = JSON.parse(localStorage.getItem('hm_session')||'{}');
 const UID = SESS.userId;
 

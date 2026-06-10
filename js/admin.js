@@ -87,7 +87,7 @@ try {
   }
 } catch(_){ location.replace('index.html'); }
 
-const AAPI = 'https://health-monitor-admin.onrender.com';
+const AAPI = 'https://health-monitor-admin-ldk0.onrender.com';
 const SESS = JSON.parse(localStorage.getItem('hm_session')||'{}');
 const UID  = SESS.userId;
 
